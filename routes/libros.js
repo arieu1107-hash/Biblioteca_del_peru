@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { sql, poolPromise } = require('../database');
+const { pool } = require('../database');
 
 router.get('/', async (req, res) => {
     try {
-        const pool = await poolPromise;
-        const resultado = await pool.request().query('SELECT * FROM Libros ORDER BY id DESC');
-        res.json({ exito: true, datos: resultado.recordset });
+        const resultado = await pool.query('SELECT * FROM Libros ORDER BY id DESC');
+        res.json({ exito: true, datos: resultado.rows });
     } catch (err) {
         res.status(500).json({ exito: false, mensaje: err.message });
     }
@@ -14,15 +13,11 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const pool = await poolPromise;
-        const resultado = await pool.request()
-            .input('id', sql.Int, req.params.id)
-            .query('SELECT * FROM Libros WHERE id = @id');
-
-        if (resultado.recordset.length === 0) {
+        const resultado = await pool.query('SELECT * FROM Libros WHERE id = $1', [req.params.id]);
+        if (resultado.rows.length === 0) {
             return res.status(404).json({ exito: false, mensaje: 'Libro no encontrado' });
         }
-        res.json({ exito: true, datos: resultado.recordset[0] });
+        res.json({ exito: true, datos: resultado.rows[0] });
     } catch (err) {
         res.status(500).json({ exito: false, mensaje: err.message });
     }
@@ -30,19 +25,14 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const { titulo, autor, imagen_url } = req.body;
-
     if (!titulo || !autor) {
         return res.status(400).json({ exito: false, mensaje: 'Título y autor son obligatorios' });
     }
-
     try {
-        const pool = await poolPromise;
-        await pool.request()
-            .input('titulo', sql.VarChar(255), titulo)
-            .input('autor', sql.VarChar(255), autor)
-            .input('imagen_url', sql.VarChar(sql.MAX), imagen_url || null)
-            .query('INSERT INTO Libros (titulo, autor, disponible, imagen_url) VALUES (@titulo, @autor, 1, @imagen_url)');
-
+        await pool.query(
+            'INSERT INTO Libros (titulo, autor, disponible, imagen_url) VALUES ($1, $2, true, $3)',
+            [titulo, autor, imagen_url || null]
+        );
         res.status(201).json({ exito: true, mensaje: 'Libro agregado correctamente' });
     } catch (err) {
         res.status(500).json({ exito: false, mensaje: err.message });
@@ -51,20 +41,12 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     const { titulo, autor, disponible, imagen_url } = req.body;
-
     try {
-        const pool = await poolPromise;
-        const resultado = await pool.request()
-            .input('id', sql.Int, req.params.id)
-            .input('titulo', sql.VarChar(255), titulo)
-            .input('autor', sql.VarChar(255), autor)
-            .input('disponible', sql.Bit, disponible)
-            .input('imagen_url', sql.VarChar(sql.MAX), imagen_url || null)
-            .query(`UPDATE Libros 
-                    SET titulo = @titulo, autor = @autor, disponible = @disponible, imagen_url = @imagen_url
-                    WHERE id = @id`);
-
-        if (resultado.rowsAffected[0] === 0) {
+        const resultado = await pool.query(
+            'UPDATE Libros SET titulo=$1, autor=$2, disponible=$3, imagen_url=$4 WHERE id=$5',
+            [titulo, autor, disponible, imagen_url || null, req.params.id]
+        );
+        if (resultado.rowCount === 0) {
             return res.status(404).json({ exito: false, mensaje: 'Libro no encontrado' });
         }
         res.json({ exito: true, mensaje: 'Libro actualizado correctamente' });
@@ -75,12 +57,8 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        const pool = await poolPromise;
-        const resultado = await pool.request()
-            .input('id', sql.Int, req.params.id)
-            .query('DELETE FROM Libros WHERE id = @id');
-
-        if (resultado.rowsAffected[0] === 0) {
+        const resultado = await pool.query('DELETE FROM Libros WHERE id = $1', [req.params.id]);
+        if (resultado.rowCount === 0) {
             return res.status(404).json({ exito: false, mensaje: 'Libro no encontrado' });
         }
         res.json({ exito: true, mensaje: 'Libro eliminado correctamente' });

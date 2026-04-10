@@ -1,19 +1,15 @@
-const sql = require('mssql/msnodesqlv8');
+const { Pool } = require('pg');
 
-const config = {
-    connectionString: 'Driver={ODBC Driver 17 for SQL Server};Server=DESKTOP-UF090I2;Database=Biblioteca;Trusted_Connection=yes;'
-};
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+});
 
-// Creamos el pool de conexión
-const poolPromise = new sql.ConnectionPool(config)
-    .connect()
-    .then(pool => {
-        console.log('✅ Conexión exitosa con SQL Server - Base de datos Biblioteca');
-        return pool;
-    })
+pool.connect()
+    .then(() => console.log('✅ Conexión exitosa con PostgreSQL'))
     .catch(err => {
-        console.error('❌ Error de conexión a la base de datos:', err.message);
-        process.exit(1); // Detiene el servidor si no hay conexión
+        console.error('❌ Error de conexión:', err.message);
+        process.exit(1);
     });
 
-module.exports = { sql, poolPromise };
+module.exports = { pool };
