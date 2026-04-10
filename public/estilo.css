@@ -1,0 +1,163 @@
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://image-tc.galaxy.tf/wijpeg-7ellqz2uqv2l9plk30futx9jr/experiencias-machu-picchu_wide.jpg?crop=0%2C63%2C1200%2C675') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+
+    nav {
+      background: #1a3c5e;
+      color: white;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    }
+    nav h1 { font-size: 1.3rem; }
+    nav .nav-links button {
+      background: none;
+      border: 1px solid rgba(255,255,255,.4);
+      color: white;
+      padding: .4rem .9rem;
+      margin-left: .5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    nav .nav-links button:hover, nav .nav-links button.active {
+      background: rgba(255,255,255,.2);
+    }
+    #btn-logout { background: #c0392b !important; border-color: #c0392b !important; }
+
+    .page { display: none; padding: 2rem; max-width: 1200px; margin: auto; }
+    .page.active { display: block; }
+
+    .auth-card {
+      background: white;
+      max-width: 420px;
+      margin: 3rem auto;
+      padding: 2.5rem;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    }
+    .auth-card h2 { text-align: center; color: #1a3c5e; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .3rem; }
+    .form-group input, .form-group select {
+      width: 100%; padding: .6rem .9rem;
+      border: 1px solid #ccc; border-radius: 8px;
+      font-size: .95rem; transition: border .2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none; border-color: #1a3c5e;
+    }
+    .btn-primary {
+      width: 100%; padding: .75rem;
+      background: #1a3c5e; color: white;
+      border: none; border-radius: 8px;
+      font-size: 1rem; cursor: pointer; margin-top: .5rem;
+      transition: background .2s;
+    }
+    .btn-primary:hover { background: #16334f; }
+    .auth-toggle {
+      text-align: center; margin-top: 1rem;
+      font-size: .9rem; color: #555;
+    }
+    .auth-toggle a { color: #1a3c5e; cursor: pointer; text-decoration: underline; }
+
+    .alerta {
+      padding: .75rem 1rem; border-radius: 8px;
+      margin-bottom: 1rem; display: none; font-size: .9rem;
+    }
+    .alerta.exito { background: #d4edda; color: #155724; display: block; }
+    .alerta.error { background: #f8d7da; color: #721c24; display: block; }
+
+    .seccion-titulo {
+      font-size: 1.5rem; color: #1a3c5e;
+      margin-bottom: 1.5rem; border-bottom: 2px solid #1a3c5e;
+      padding-bottom: .5rem; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .btn-agregar {
+      background: #27ae60; color: white;
+      border: none; padding: .5rem 1.2rem;
+      border-radius: 8px; cursor: pointer; font-size: .9rem;
+    }
+    .btn-agregar:hover { background: #219150; }
+
+    .grid-libros {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.2rem;
+    }
+    .card-libro {
+      background: white; border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      overflow: hidden; transition: transform .2s, box-shadow .2s;
+    }
+    .card-libro:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+    .card-libro img {
+      width: 100%; height: 200px; object-fit: cover;
+      background: #e8eef4;
+    }
+    .card-libro .info { padding: 1rem; }
+    .card-libro .titulo { font-weight: 700; font-size: .95rem; margin-bottom: .3rem; }
+    .card-libro .autor  { font-size: .82rem; color: #666; margin-bottom: .6rem; }
+    .badge {
+      display: inline-block; padding: .2rem .6rem;
+      border-radius: 20px; font-size: .75rem; font-weight: 600;
+    }
+    .badge.disponible  { background: #d4edda; color: #155724; }
+    .badge.no-disponible { background: #f8d7da; color: #721c24; }
+    .card-acciones { display: flex; gap: .5rem; margin-top: .7rem; }
+    .btn-sm {
+      flex: 1; padding: .35rem; border: none;
+      border-radius: 6px; cursor: pointer; font-size: .8rem; font-weight: 600;
+    }
+    .btn-reservar  { background: #1a3c5e; color: white; }
+    .btn-editar    { background: #f39c12; color: white; }
+    .btn-eliminar  { background: #e74c3c; color: white; }
+
+    .tabla-wrapper { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #1a3c5e; color: white; }
+    th, td { padding: .75rem 1rem; text-align: left; font-size: .88rem; }
+    tbody tr:nth-child(even) { background: #f7f9fc; }
+    tbody tr:hover { background: #eaf0f8; }
+    .btn-dev { background: #27ae60; color: white; border: none; padding: .3rem .7rem; border-radius: 6px; cursor: pointer; font-size: .78rem; }
+    .btn-del { background: #e74c3c; color: white; border: none; padding: .3rem .7rem; border-radius: 6px; cursor: pointer; font-size: .78rem; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white; border-radius: 14px;
+      padding: 2rem; width: 90%; max-width: 460px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.2);
+    }
+    .modal h3 { color: #1a3c5e; margin-bottom: 1.2rem; }
+    .modal-acciones { display: flex; gap: .8rem; margin-top: 1.2rem; }
+    .btn-cancelar {
+      flex: 1; padding: .65rem; background: #ecf0f1;
+      color: #333; border: none; border-radius: 8px; cursor: pointer; font-size: .95rem;
+    }
+    .btn-guardar {
+      flex: 2; padding: .65rem; background: #1a3c5e;
+      color: white; border: none; border-radius: 8px; cursor: pointer; font-size: .95rem;
+    }
+
+    #bienvenida {
+      font-size: .9rem; background: rgba(255,255,255,.15);
+      padding: .3rem .8rem; border-radius: 20px;
+    }
+
+    .spinner {
+      text-align: center; padding: 3rem; color: #888; font-size: 1.1rem;
+    }

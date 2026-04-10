@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <link rel="stylesheet" href="estilo.css">
+  <title>📚 Biblioteca Digital</title>
+
+</head>
+<body>
+
+<nav>
+  <h1>📚 Biblioteca Digital</h1>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <span id="bienvenida" style="display:none"></span>
+    <div class="nav-links" id="nav-links">
+      <button onclick="mostrarPagina('login')" id="nav-login">Iniciar sesión</button>
+      <button onclick="mostrarPagina('registro')" id="nav-registro">Registrarse</button>
+    </div>
+    <div class="nav-links" id="nav-auth" style="display:none">
+      <button onclick="mostrarPagina('libros')"   id="nav-libros">📖 Libros</button>
+      <button onclick="mostrarPagina('reservas')" id="nav-reservas">🗒️ Reservas</button>
+      <button onclick="mostrarPagina('usuarios')" id="nav-usuarios" style="display:none">👤 Usuarios</button>
+      <button onclick="cerrarSesion()" id="btn-logout">Salir</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page active" id="page-login">
+  <div class="auth-card">
+    <h2>🔑 Iniciar sesión</h2>
+    <div class="alerta" id="alerta-login"></div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="tu@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••"/>
+    </div>
+    <button class="btn-primary" onclick="login()">Ingresar</button>
+    <p class="auth-toggle">¿No tienes cuenta? <a onclick="mostrarPagina('registro')">Regístrate</a></p>
+  </div>
+</div>
+
+<div class="page" id="page-registro">
+  <div class="auth-card">
+    <h2>📝 Crear cuenta</h2>
+    <div class="alerta" id="alerta-registro"></div>
+    <div class="form-group">
+      <label>Nombre</label>
+      <input type="text" id="reg-nombre" placeholder="Nombre"/>
+    </div>
+    <div class="form-group">
+      <label>Apellido</label>
+      <input type="text" id="reg-apellido" placeholder="Apellido"/>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="reg-email" placeholder="tu@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
+    </div>
+    <button class="btn-primary" onclick="registrar()">Registrarse</button>
+    <p class="auth-toggle">¿Ya tienes cuenta? <a onclick="mostrarPagina('login')">Inicia sesión</a></p>
+  </div>
+</div>
+
+<div class="page" id="page-libros">
+  <div class="seccion-titulo">
+    <span>📖 Catálogo de Libros</span>
+    <button class="btn-agregar" id="btn-agregar-libro" onclick="abrirModalLibro()" style="display:none">+ Agregar libro</button>
+  </div>
+  <div id="lista-libros" class="grid-libros">
+    <div class="spinner">Cargando libros...</div>
+  </div>
+</div>
+
+<div class="page" id="page-reservas">
+  <div class="seccion-titulo">
+    <span>🗒️ Mis Reservas</span>
+  </div>
+  <div id="lista-reservas">
+    <div class="spinner">Cargando reservas...</div>
+  </div>
+</div>
+
+<div class="page" id="page-usuarios">
+  <div class="seccion-titulo">
+    <span>👤 Gestión de Usuarios</span>
+  </div>
+  <div id="lista-usuarios">
+    <div class="spinner">Cargando usuarios...</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-libro">
+  <div class="modal">
+    <h3 id="modal-libro-titulo">📕 Nuevo Libro</h3>
+    <div class="alerta" id="alerta-modal-libro"></div>
+    <input type="hidden" id="libro-id"/>
+    <div class="form-group">
+      <label>Título</label>
+      <input type="text" id="libro-titulo" placeholder="Título del libro"/>
+    </div>
+    <div class="form-group">
+      <label>Autor</label>
+      <input type="text" id="libro-autor" placeholder="Nombre del autor"/>
+    </div>
+    <div class="form-group">
+      <label>URL de imagen (opcional)</label>
+      <input type="text" id="libro-imagen" placeholder="https://..."/>
+    </div>
+    <div class="form-group" id="grupo-disponible" style="display:none">
+      <label>Disponible</label>
+      <select id="libro-disponible">
+        <option value="1">Sí</option>
+        <option value="0">No</option>
+      </select>
+    </div>
+    <div class="modal-acciones">
+      <button class="btn-cancelar" onclick="cerrarModal('modal-libro')">Cancelar</button>
+      <button class="btn-guardar"  onclick="guardarLibro()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-reserva">
+  <div class="modal">
+    <h3>📅 Reservar Libro</h3>
+    <div class="alerta" id="alerta-modal-reserva"></div>
+    <input type="hidden" id="reserva-libro-id"/>
+    <div class="form-group">
+      <label>Libro</label>
+      <input type="text" id="reserva-libro-nombre" disabled/>
+    </div>
+    <div class="form-group">
+      <label>Fecha de devolución</label>
+      <input type="date" id="reserva-fecha"/>
+    </div>
+    <div class="modal-acciones">
+      <button class="btn-cancelar" onclick="cerrarModal('modal-reserva')">Cancelar</button>
+      <button class="btn-guardar"  onclick="crearReserva()">Confirmar reserva</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';  
+let usuarioActual = null;
+
+function mostrarPagina(nombre) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${nombre}`).classList.add('active');
+
+  if (nombre === 'libros')   cargarLibros();
+  if (nombre === 'reservas') cargarReservas();
+  if (nombre === 'usuarios') cargarUsuarios();
+}
+
+async function login() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const alerta   = document.getElementById('alerta-login');
+
+  if (!email || !password) return mostrarAlerta(alerta, 'Completa todos los campos', 'error');
+
+  try {
+    const res  = await fetch(`${API}/api/usuarios/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!data.exito) return mostrarAlerta(alerta, data.mensaje, 'error');
+
+    usuarioActual = data.usuario;
+    document.getElementById('bienvenida').textContent = `Hola, ${usuarioActual.nombre} (${usuarioActual.rol})`;
+    document.getElementById('bienvenida').style.display = 'inline';
+    document.getElementById('nav-links').style.display  = 'none';
+    document.getElementById('nav-auth').style.display   = 'flex';
+
+    if (usuarioActual.rol === 'Administrador') {
+      document.getElementById('nav-usuarios').style.display = 'inline-block';
+      document.getElementById('btn-agregar-libro').style.display = 'inline-block';
+    }
+
+    mostrarPagina('libros');
+    alerta.className = 'alerta';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pass').value  = '';
+  } catch (e) {
+    mostrarAlerta(alerta, 'Error de conexión con el servidor', 'error');
+  }
+}
+
+async function registrar() {
+  const nombre   = document.getElementById('reg-nombre').value.trim();
+  const apellido = document.getElementById('reg-apellido').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-pass').value;
+  const alerta   = document.getElementById('alerta-registro');
+
+  if (!nombre || !apellido || !email || !password)
+    return mostrarAlerta(alerta, 'Completa todos los campos', 'error');
+  if (password.length < 6)
+    return mostrarAlerta(alerta, 'La contraseña debe tener mínimo 6 caracteres', 'error');
+
+  try {
+    const res  = await fetch(`${API}/api/usuarios/registro`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, apellido, email, password })
+    });
+    const data = await res.json();
+    if (!data.exito) return mostrarAlerta(alerta, data.mensaje, 'error');
+
+    mostrarAlerta(alerta, '¡Cuenta creada! Ya puedes iniciar sesión.', 'exito');
+    setTimeout(() => mostrarPagina('login'), 1800);
+  } catch (e) {
+    mostrarAlerta(alerta, 'Error de conexión con el servidor', 'error');
+  }
+}
+
+function cerrarSesion() {
+  usuarioActual = null;
+  document.getElementById('bienvenida').style.display = 'none';
+  document.getElementById('nav-links').style.display  = 'flex';
+  document.getElementById('nav-auth').style.display   = 'none';
+  document.getElementById('nav-usuarios').style.display = 'none';
+  document.getElementById('btn-agregar-libro').style.display = 'none';
+  mostrarPagina('login');
+}
+
+async function cargarLibros() {
+  const contenedor = document.getElementById('lista-libros');
+  contenedor.innerHTML = '<div class="spinner">Cargando libros...</div>';
+  try {
+    const res  = await fetch(`${API}/api/libros`);
+    const data = await res.json();
+    if (!data.exito || data.datos.length === 0) {
+      contenedor.innerHTML = '<p style="color:#888;padding:1rem">No hay libros registrados.</p>';
+      return;
+    }
+    contenedor.innerHTML = data.datos.map(l => `
+      <div class="card-libro">
+        <img src="${l.imagen_url || 'https://via.placeholder.com/200x200?text=📚'}" 
+             alt="${l.titulo}" onerror="this.src='https://via.placeholder.com/200x200?text=📚'"/>
+        <div class="info">
+          <div class="titulo">${l.titulo}</div>
+          <div class="autor">✍️ ${l.autor}</div>
+          <span class="badge ${l.disponible ? 'disponible' : 'no-disponible'}">
+            ${l.disponible ? '✅ Disponible' : '❌ No disponible'}
+          </span>
+          <div class="card-acciones">
+            ${l.disponible && usuarioActual
+              ? `<button class="btn-sm btn-reservar" onclick="abrirModalReserva(${l.id},'${l.titulo.replace(/'/g,"\\'")}')">Reservar</button>`
+              : ''}
+            ${usuarioActual?.rol === 'Administrador' ? `
+              <button class="btn-sm btn-editar"  onclick="abrirModalLibro(${l.id})">Editar</button>
+              <button class="btn-sm btn-eliminar" onclick="eliminarLibro(${l.id})">Borrar</button>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    contenedor.innerHTML = '<p style="color:red;padding:1rem">Error al cargar libros.</p>';
+  }
+}
+
+function abrirModalLibro(id = null) {
+  document.getElementById('libro-id').value        = id || '';
+  document.getElementById('libro-titulo').value    = '';
+  document.getElementById('libro-autor').value     = '';
+  document.getElementById('libro-imagen').value    = '';
+  document.getElementById('alerta-modal-libro').className = 'alerta';
+  document.getElementById('modal-libro-titulo').textContent = id ? '✏️ Editar Libro' : '📕 Nuevo Libro';
+  document.getElementById('grupo-disponible').style.display = id ? 'block' : 'none';
+
+  if (id) {
+    fetch(`${API}/api/libros/${id}`)
+      .then(r => r.json())
+      .then(data => {
+        const l = data.datos;
+        document.getElementById('libro-titulo').value    = l.titulo;
+        document.getElementById('libro-autor').value     = l.autor;
+        document.getElementById('libro-imagen').value    = l.imagen_url || '';
+        document.getElementById('libro-disponible').value = l.disponible ? '1' : '0';
+      });
+  }
+  document.getElementById('modal-libro').classList.add('open');
+}
+
+async function guardarLibro() {
+  const id        = document.getElementById('libro-id').value;
+  const titulo    = document.getElementById('libro-titulo').value.trim();
+  const autor     = document.getElementById('libro-autor').value.trim();
+  const imagen    = document.getElementById('libro-imagen').value.trim();
+  const disponible= document.getElementById('libro-disponible')?.value;
+  const alerta    = document.getElementById('alerta-modal-libro');
+
+  if (!titulo || !autor) return mostrarAlerta(alerta, 'Título y autor son obligatorios', 'error');
+
+  const body = id
+    ? { titulo, autor, imagen_url: imagen, disponible: parseInt(disponible) }
+    : { titulo, autor, imagen_url: imagen };
+
+  try {
+    const url    = id ? `${API}/api/libros/${id}` : `${API}/api/libros`;
+    const method = id ? 'PUT' : 'POST';
+    const res    = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data   = await res.json();
+    if (!data.exito) return mostrarAlerta(alerta, data.mensaje, 'error');
+
+    cerrarModal('modal-libro');
+    cargarLibros();
+  } catch (e) {
+    mostrarAlerta(alerta, 'Error al guardar', 'error');
+  }
+}
+
+async function eliminarLibro(id) {
+  if (!confirm('¿Seguro que deseas eliminar este libro?')) return;
+  try {
+    const res  = await fetch(`${API}/api/libros/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.exito) cargarLibros();
+    else alert(data.mensaje);
+  } catch (e) { alert('Error al eliminar'); }
+}
+
+function abrirModalReserva(libroId, libroNombre) {
+  if (!usuarioActual) return alert('Debes iniciar sesión');
+  document.getElementById('reserva-libro-id').value      = libroId;
+  document.getElementById('reserva-libro-nombre').value  = libroNombre;
+  document.getElementById('reserva-fecha').value         = '';
+  document.getElementById('alerta-modal-reserva').className = 'alerta';
+  const manana = new Date(); manana.setDate(manana.getDate()+1);
+  document.getElementById('reserva-fecha').min = manana.toISOString().split('T')[0];
+  document.getElementById('modal-reserva').classList.add('open');
+}
+
+async function crearReserva() {
+  const libro_id        = document.getElementById('reserva-libro-id').value;
+  const fecha_devolucion= document.getElementById('reserva-fecha').value;
+  const alerta          = document.getElementById('alerta-modal-reserva');
+
+  if (!fecha_devolucion) return mostrarAlerta(alerta, 'Selecciona una fecha de devolución', 'error');
+
+  try {
+    const res  = await fetch(`${API}/api/reservas`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ usuario_id: usuarioActual.id, libro_id, fecha_devolucion })
+    });
+    const data = await res.json();
+    if (!data.exito) return mostrarAlerta(alerta, data.mensaje, 'error');
+
+    mostrarAlerta(alerta, '¡Reserva creada exitosamente!', 'exito');
+    setTimeout(() => { cerrarModal('modal-reserva'); cargarLibros(); }, 1200);
+  } catch (e) {
+    mostrarAlerta(alerta, 'Error al crear reserva', 'error');
+  }
+}
+
+async function cargarReservas() {
+  const contenedor = document.getElementById('lista-reservas');
+  contenedor.innerHTML = '<div class="spinner">Cargando reservas...</div>';
+  try {
+    const res  = await fetch(`${API}/api/reservas`);
+    const data = await res.json();
+    if (!data.exito || data.datos.length === 0) {
+      contenedor.innerHTML = '<p style="color:#888;padding:1rem">No hay reservas registradas.</p>';
+      return;
+    }
+    let reservas = data.datos;
+    if (usuarioActual?.rol !== 'Administrador') {
+      reservas = reservas.filter(r => r.email === usuarioActual?.email);
+    }
+
+    contenedor.innerHTML = `
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Libro</th><th>Autor</th><th>Usuario</th>
+              <th>Fecha Reserva</th><th>Devolución</th><th>Estado</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reservas.map(r => `
+              <tr>
+                <td>${r.id}</td>
+                <td>${r.libro}</td>
+                <td>${r.autor}</td>
+                <td>${r.usuario}</td>
+                <td>${new Date(r.fecha_reserva).toLocaleDateString('es-PE')}</td>
+                <td>${new Date(r.fecha_devolucion).toLocaleDateString('es-PE')}</td>
+                <td><span class="badge ${r.estado==='Activa'?'disponible':'no-disponible'}">${r.estado}</span></td>
+                <td>
+                  ${r.estado==='Activa' ? `<button class="btn-dev" onclick="devolverLibro(${r.id})">Devolver</button>` : ''}
+                  ${usuarioActual?.rol==='Administrador' ? `<button class="btn-del" onclick="eliminarReserva(${r.id})">Borrar</button>` : ''}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    contenedor.innerHTML = '<p style="color:red;padding:1rem">Error al cargar reservas.</p>';
+  }
+}
+
+async function devolverLibro(id) {
+  if (!confirm('¿Confirmas la devolución del libro?')) return;
+  try {
+    const res  = await fetch(`${API}/api/reservas/${id}/devolver`, { method: 'PUT' });
+    const data = await res.json();
+    if (data.exito) cargarReservas();
+    else alert(data.mensaje);
+  } catch (e) { alert('Error al devolver'); }
+}
+
+async function eliminarReserva(id) {
+  if (!confirm('¿Eliminar esta reserva?')) return;
+  try {
+    const res  = await fetch(`${API}/api/reservas/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.exito) cargarReservas();
+    else alert(data.mensaje);
+  } catch (e) { alert('Error al eliminar'); }
+}
+
+async function cargarUsuarios() {
+  const contenedor = document.getElementById('lista-usuarios');
+  contenedor.innerHTML = '<div class="spinner">Cargando usuarios...</div>';
+  try {
+    const res  = await fetch(`${API}/api/usuarios`);
+    const data = await res.json();
+    contenedor.innerHTML = `
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Nombre</th><th>Apellido</th><th>Email</th><th>Rol</th><th>Activo</th><th>Registro</th><th>Acción</th></tr>
+          </thead>
+          <tbody>
+            ${data.datos.map(u => `
+              <tr>
+                <td>${u.id}</td>
+                <td>${u.nombre}</td>
+                <td>${u.apellido}</td>
+                <td>${u.email}</td>
+                <td>${u.rol}</td>
+                <td>${u.activo ? '✅' : '❌'}</td>
+                <td>${new Date(u.fecha_registro).toLocaleDateString('es-PE')}</td>
+                <td><button class="btn-del" onclick="eliminarUsuario(${u.id})">Borrar</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    contenedor.innerHTML = '<p style="color:red;padding:1rem">Error al cargar usuarios.</p>';
+  }
+}
+
+async function eliminarUsuario(id) {
+  if (!confirm('¿Eliminar este usuario?')) return;
+  try {
+    const res  = await fetch(`${API}/api/usuarios/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.exito) cargarUsuarios();
+    else alert(data.mensaje);
+  } catch (e) { alert('Error al eliminar'); }
+}
+
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function mostrarAlerta(el, msg, tipo) {
+  el.textContent = msg;
+  el.className = `alerta ${tipo}`;
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
